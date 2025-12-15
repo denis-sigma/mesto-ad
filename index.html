@@ -52,7 +52,9 @@
                 id="user-name"
                 class="popup__input popup__input_type_name"
                 data-error-message="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
-                pattern="[A-Za-zА-Яа-яЁё\- ]{2,40}"
+                minlength="2"
+                maxlength="40"
+                pattern="[A-Za-zА-Яа-яЁё\- ]*"
                 placeholder="Имя"
                 required
               />
