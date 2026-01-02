@@ -5,8 +5,7 @@
 
   Из index.js не допускается что то экспортировать
 */
-
-import { initialCards } from "./cards.js";
+import { setUserInfo, getCardList, getUserInfo } from "./components/api.js";
 import { createCardElement, deleteCard, likeCard } from "./components/card.js";
 import { openModalWindow, closeModalWindow, setCloseModalWindowEventListeners } from "./components/modal.js";
 
@@ -46,9 +45,19 @@ const handlePreviewPicture = ({ name, link }) => {
 
 const handleProfileFormSubmit = (evt) => {
   evt.preventDefault();
-  profileTitle.textContent = profileTitleInput.value;
-  profileDescription.textContent = profileDescriptionInput.value;
-  closeModalWindow(profileFormModalWindow);
+  setUserInfo({
+    name: profileTitleInput.value,
+    about: profileDescriptionInput.value,
+  })
+    .then((userData) => {
+      // Код отвечающий за обновление данных на странице
+      profileTitle.textContent = userData.name;
+      profileDescription.textContent = userData.about;
+      closeModalWindow(profileFormModalWindow);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 const handleAvatarFromSubmit = (evt) => {
@@ -97,17 +106,6 @@ openCardFormButton.addEventListener("click", () => {
   openModalWindow(cardFormModalWindow);
 });
 
-// отображение карточек
-initialCards.forEach((data) => {
-  placesWrap.append(
-    createCardElement(data, {
-      onPreviewPicture: handlePreviewPicture,
-      onLikeIcon: likeCard,
-      onDeleteCard: deleteCard,
-    })
-  );
-});
-
 //настраиваем обработчики закрытия попапов
 const allPopups = document.querySelectorAll(".popup");
 allPopups.forEach((popup) => {
@@ -130,3 +128,33 @@ const validationSettings = {
 // включение валидации вызовом enableValidation
 // все настройки передаются при вызове
 enableValidation(validationSettings);
+
+Promise.all([getCardList(), getUserInfo()])
+  .then(([cards, userData]) => {
+    // 1. Отрисовываем данные пользователя
+    profileTitle.textContent = userData.name;
+    profileDescription.textContent = userData.about;
+    profileAvatar.style.backgroundImage = `url({userData.avatar})`;
+
+    // 2. Очищаем контейнер с карточками на странице, если нужно:
+    placesWrap.innerHTML = "";
+
+    // 3. Отрисовываем карточки
+    cards.forEach(cardData => {
+      // Используем функцию для создания карточки как раньше
+      const cardElement = createCardElement(
+        cardData,
+        {
+          onPreviewPicture: handlePreviewPicture,
+          onLikeIcon: likeCard,
+          onDeleteCard: deleteCard,
+        },
+        userData._id // понадобится, чтобы настраивать лайки/корзину для себя
+      );
+      placesWrap.append(cardElement);
+    });
+  })
+  .catch((err) => {
+    console.log(err); // В случае возникновения ошибки выводим её в консоль
+  });
+
