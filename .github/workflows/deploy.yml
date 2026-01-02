@@ -20,30 +20,16 @@ jobs:
           cache: 'npm'
           
       - name: Install dependencies
-        run: |
-          npm ci --no-audit --prefer-offline
-          
-      - name: Fix permissions
-        run: |
-          chmod +x node_modules/.bin/vite || true
-          chmod +x node_modules/.bin/vite-build || true
-          
+        run: npm ci
+        
       - name: Build project
-        run: |
-          # Пробуем разные варианты
-          npx vite build || ./node_modules/.bin/vite build || npm run build
-          
-      - name: Verify build
-        run: |
-          echo "Build directory contents:"
-          ls -la dist/
-          echo "First lines of index.html:"
-          head -10 dist/index.html
-          
+        run: npx vite build
+        
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # ИЗМЕНИТЕ НА personal_token!
+          personal_token: ${{ secrets.PUBLIC_PAGES_TOKEN }}
           external_repository: ${{ secrets.PUBLIC_PAGES_REPO }}
           publish_dir: ./dist
           publish_branch: main
