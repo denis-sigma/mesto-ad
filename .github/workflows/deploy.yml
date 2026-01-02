@@ -2,8 +2,7 @@ name: Deploy to Public Pages Repository
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -17,22 +16,37 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-            node-version: '>=22.12'
-            cache: 'npm'
-
+          node-version: '22'
+          cache: 'npm'
+          
       - name: Install dependencies
-        run: npm install
-
+        run: |
+          npm ci --no-audit --prefer-offline
+          
+      - name: Fix permissions
+        run: |
+          chmod +x node_modules/.bin/vite || true
+          chmod +x node_modules/.bin/vite-build || true
+          
       - name: Build project
-        run: npm run build
-
+        run: |
+          # Пробуем разные варианты
+          npx vite build || ./node_modules/.bin/vite build || npm run build
+          
+      - name: Verify build
+        run: |
+          echo "Build directory contents:"
+          ls -la dist/
+          echo "First lines of index.html:"
+          head -10 dist/index.html
+          
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          personal_token: ${{ secrets.PUBLIC_PAGES_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           external_repository: ${{ secrets.PUBLIC_PAGES_REPO }}
           publish_dir: ./dist
-          publish_branch: ${{ secrets.PUBLIC_PAGES_BRANCH || 'main' }}
+          publish_branch: main
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
           commit_message: 'deploy: update build'
