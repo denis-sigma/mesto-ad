@@ -367,3 +367,5 @@ Promise.all([getCardList(), getUserInfo()])
   .catch((err) => {
     console.log(err);
   });
+
+  //тесты
