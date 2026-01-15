@@ -335,20 +335,29 @@ Promise.all([getCardList(), getUserInfo()])
           },
           onDeleteCard: (cardElement) => {
             const deleteButton = cardElement.querySelector('.card__control-button_type_delete');
+            const popupRemoveCard = document.querySelector('.popup_type_remove-card');
+            const confirmButtonOriginal = popupRemoveCard.querySelector('.popup__form button[type="submit"]');
+
             if (deleteButton) {
               deleteButton.disabled = true;
-            }
-            
-            deleteCardFromServer(cardData._id)
-              .then(() => {
-                cardElement.remove();
-              })
-              .catch((err) => {
-                console.log(err);
-                if (deleteButton) {
-                  deleteButton.disabled = false;
-                }
+
+              openModalWindow(popupRemoveCard);
+
+              const confirmButton = confirmButtonOriginal.cloneNode(true);
+              confirmButtonOriginal.replaceWith(confirmButton);
+
+              confirmButton.addEventListener("click", () => {
+                deleteCardFromServer(cardData._id)
+                  .then(() => {
+                    cardElement.remove();
+                    closeModalWindow(popupRemoveCard);
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                    deleteButton.disabled = false;
+                  });
               });
+            }
           },
           onInfoClick: handleInfoClick,
         }
