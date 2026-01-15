@@ -15,12 +15,12 @@ const getTemplate = () => {
 
 export const createCardElement = (
   data,
-  { onPreviewPicture, onLikeIcon, onDeleteCard, onInfoClick } // Добавляем обработчик инфо
+  { onPreviewPicture, onLikeIcon, onDeleteCard, onInfoClick }
 ) => {
   const cardElement = getTemplate();
   const likeButton = cardElement.querySelector(".card__like-button");
   const deleteButton = cardElement.querySelector(".card__control-button_type_delete");
-  const infoButton = cardElement.querySelector(".card__control-button_type_info"); // Добавляем кнопку инфо
+  const infoButton = cardElement.querySelector(".card__control-button_type_info");
   const cardImage = cardElement.querySelector(".card__image");
   const likeCount = cardElement.querySelector(".card__like-count");
 
