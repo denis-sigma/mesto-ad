@@ -346,7 +346,9 @@ Promise.all([getCardList(), getUserInfo()])
               const confirmButton = confirmButtonOriginal.cloneNode(true);
               confirmButtonOriginal.replaceWith(confirmButton);
 
-              confirmButton.addEventListener("click", () => {
+              confirmButton.addEventListener("click", (evt) => {
+                evt.preventDefault()
+
                 deleteCardFromServer(cardData._id)
                   .then(() => {
                     cardElement.remove();
